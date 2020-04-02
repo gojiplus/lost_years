@@ -13,11 +13,11 @@ Lost Years: Expected Number of Years Lost
     image:: https://pepy.tech/badge/lost-years
     :target: https://pepy.tech/project/lost-years
 
-The mortality rate is puzzling to mortals. A better number is the expected number of years lost. (A yet better number would be quality-adjusted years lost.) To make it easier to calculate the expected years lost, we provide a Python package that uses the `SSA actuarial data <https://www.ssa.gov/oact/STATS/table4c6.html>`__ and `life table <https://www.lifetable.de/cgi-bin/data.php>`__ to estimate the expected years lost.
+The mortality rate is puzzling to mortals. A better number is the expected number of years lost. (A yet better number would be quality-adjusted years lost.) To make it easier to calculate the expected years lost, `lost_years` provides a convenient way to join to the `SSA actuarial data <https://www.ssa.gov/oact/STATS/table4c6.html>`__ and `life table <https://www.lifetable.de/cgi-bin/data.php>`__.
 
 The package exposes two functions: ``lost_years_ssa`` and ``lost_years_hld``: 
 
-* ``lost_years_ssa``
+* ``lost_years_ssa``: Joins to the final SSA dataset stored `here <https://github.com/gojiplus/lost_years/blob/master/lost_years/data/ssa.csv>`__. The data are from `SSA actuarial data <https://www.ssa.gov/oact/STATS/table4c6.html>`__ 
 
     * **Inputs:** 
 
@@ -26,11 +26,9 @@ The package exposes two functions: ``lost_years_ssa`` and ``lost_years_hld``:
     
     * **What the function does**
         
-        * Joins to the final SSA dataset stored `here <https://github.com/gojiplus/lost_years/blob/master/lost_years/data/ssa.csv>`__. The data are from `SSA actuarial data <https://www.ssa.gov/oact/STATS/table4c6.html>`__ 
-        
         * While ``lost_years_ssa`` is technically only applicable for the US, we make it so that the function ignores the ``country`` argument and gives you the counterfactual of what the expected years lost would be if the person who died (or is predicted to die) was in the US. (You can of course do the same for HLD by changing the country.) 
         
-* ``lost_years_hld``
+* ``lost_years_hld``: Joins to the international `life table <https://www.lifetable.de/cgi-bin/data.php>`__ data. 
 
     * **Inputs:** 
 
@@ -39,8 +37,6 @@ The package exposes two functions: ``lost_years_ssa`` and ``lost_years_hld``:
         * **Closest Year and Age Matching** By default, we match to the closest year; not all countries provide expected years left for all years or all ages. The year we match to is ``hld_year1``. Same for age. If the age provided is not available, we match to the closest age and store the matched age in the ``hld_age`` column.
 
     * **What the function does**
-        
-        * Joins to the international `life table <https://www.lifetable.de/cgi-bin/data.php>`__ data. 
 
         * HLD exposes more facets than age and sex. For some countries, for some periods, it also provides things like sociodemographic variables. To not lose information, we provide **multiple rows---corresponding to each sub-combination---per match**. 
 
