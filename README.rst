@@ -53,7 +53,7 @@ The package exposes two functions: ``lost_years_ssa`` and ``lost_years_hld``:
 Application
 ~~~~~~~~~~~~~~~~
 
-We `illustrate the use of the package <lost_years/examples/corona_virus.ipynb>`__ by estimating the average number of years by which people's lives are shortened due to coronavirus. Using data from `Table 1 of the paper <http://weekly.chinacdc.cn/en/article/id/e53946e2-c6c4-41e9-9a9b-fea8db1a8f51>`__ that gives us the distribution of ages of people who died from COVID-19 in China, with conservative assumptions (assuming gender of the dead person to be male, taking the middle of age ranges) we find that people's lives are shortened by about 11 years on average. These estimates are conservative for one additional reason: there is likely an inverse correlation between people who die and their expected longevity. And note that given a bulk of the deaths are among older people, when people are more infirm, the quality adjusted years lost is likely yet more modest. Given that the last life tables from China are from 1981, we estimate the average number of years lost if people had the same profile as Americans. Using the most recent SSA data, we find that number to be 16. Compare this to deaths from road accidents, the modal reason for death among 5-24 and 25-44 ages in the US. Male life expectancy in the US at 25 is another ~ 52 years.
+We `illustrate the use of the package <https://github.com/gojiplus/lost_years/blob/master/examples/corona_virus.ipynb>`__ by estimating the average number of years by which people's lives are shortened due to coronavirus. Using data from `Table 1 of the paper <http://weekly.chinacdc.cn/en/article/id/e53946e2-c6c4-41e9-9a9b-fea8db1a8f51>`__ that gives us the distribution of ages of people who died from COVID-19 in China, with conservative assumptions (assuming gender of the dead person to be male, taking the middle of age ranges) we find that people's lives are shortened by about 11 years on average. These estimates are conservative for one additional reason: there is likely an inverse correlation between people who die and their expected longevity. And note that given a bulk of the deaths are among older people, when people are more infirm, the quality adjusted years lost is likely yet more modest. Given that the last life tables from China are from 1981, we estimate the average number of years lost if people had the same profile as Americans. Using the most recent SSA data, we find that number to be 16. Compare this to deaths from road accidents, the modal reason for death among 5-24 and 25-44 ages in the US. Male life expectancy in the US at 25 is another ~ 52 years.
 
 Installation
 ~~~~~~~~~~~~
@@ -126,7 +126,7 @@ Example
 As an External Library
 ~~~~~~~~~~~~~~~~~~~~~~
 
-Please also look at the Jupyter notebook `example.ipynb <lost_years/examples/example.ipynb>`__.
+Please also look at the Jupyter notebook `example.ipynb <https://github.com/gojiplus/lost_years/blob/master/examples/example.ipynb>`__.
 
 As an External Library with Pandas DataFrame
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
