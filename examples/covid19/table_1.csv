@@ -1,0 +1,9 @@
+lowest_age,highest_age,middle_age,n_deaths,sex,country
+10,19,15,1,M,CHN
+20,29,25,7,M,CHN
+30,39,25,18,M,CHN
+40,49,45,38,M,CHN
+50,59,55,130,M,CHN
+60,69,65,309,M,CHN
+70,79,75,312,M,CHN
+80,89,85,208,M,CHN
