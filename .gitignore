@@ -13,4 +13,3 @@ build
 dist
 *.egg-info
 *.whl
-*.pdf
