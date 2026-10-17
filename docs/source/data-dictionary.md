@@ -237,7 +237,7 @@ genuine archived copy of the page for a different year, used to test the parse
 against something nobody wrote to match it.
 
 **Universe.** The Social Security area population — everyone covered by the US
-Social Security programme, which is not the same as the US resident
+Social Security program, which is not the same as the US resident
 population. **One row per single year of age, 0-119.**
 
 **Note on fetching.** ssa.gov's edge answers many automated clients with HTTP

@@ -197,7 +197,7 @@ class TestFiltering:
         assert list(normalise_code(codes)) == ["0", "0", "10", "S010", "0"]
 
     def test_normalisation_recovers_the_lost_national_rows(self, national_table):
-        """A naive `== '0'` filter keeps 550,429 rows; normalising keeps 717,457."""
+        """A naive `== '0'` filter keeps 550,429 rows; normalizing keeps 717,457."""
         assert len(national_table) > 550_429
 
     def test_national_table_holds_only_whole_country_totals(self, national_table):

@@ -347,7 +347,7 @@ def normalise_sex(value: Any) -> str:
         value: Raw value from the input DataFrame.
 
     Returns:
-        "M", "F", or "" when the value is not a recognised token.
+        "M", "F", or "" when the value is not a recognized token.
     """
     return SEX_TOKENS.get(str(value).strip().lower(), "")
 
