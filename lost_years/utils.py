@@ -1,11 +1,15 @@
 """Shared helpers for reading input frames and matching to life-table rows."""
 
+import argparse
 import logging
+from collections.abc import Callable
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 import pandas as pd
 import requests
+
+from .datasets import TableUnavailableError
 
 if TYPE_CHECKING:
     import numpy as np
@@ -128,3 +132,69 @@ def download_file(url: str, local_path: str | Path | None = None) -> None:
         for chunk in r.iter_content(chunk_size=512 * 1024):
             if chunk:  # filter out keep-alive new chunks
                 f.write(chunk)
+
+
+COLUMN_FLAGS = {"age": "-a", "country": "-c", "sex": "-s", "year": "-y"}
+
+
+def run_lookup_cli(
+    argv: list[str],
+    *,
+    title: str,
+    columns: tuple[str, ...],
+    lookup: Callable[[pd.DataFrame, dict[str, str], argparse.Namespace], pd.DataFrame],
+    output_default: str,
+    output_help: str,
+    add_options: Callable[[argparse.ArgumentParser], None] | None = None,
+) -> int:
+    """Run a per-source command: read a CSV, append life-table columns, write it.
+
+    Args:
+        argv: Command line arguments.
+        title: Description shown by ``--help``.
+        columns: Input columns the source matches on, in option order.
+        lookup: Appends the source's columns, given the input, the column
+            mapping and the parsed arguments.
+        output_default: Output file when ``--output`` is not given.
+        output_help: Help text for ``--output``.
+        add_options: Adds the source's own options, before ``--output``.
+
+    Returns:
+        0 on success, -1 when a column is missing or the source's table has not
+        been installed.
+    """
+    parser = argparse.ArgumentParser(description=title)
+    parser.add_argument("input", default=None, help="Input file")
+    for col in columns:
+        parser.add_argument(
+            COLUMN_FLAGS[col],
+            f"--{col}",
+            default=col,
+            help=f"Column name of {col} in the input file (default=`{col}`)",
+        )
+    if add_options is not None:
+        add_options(parser)
+    parser.add_argument("-o", "--output", default=output_default, help=output_help)
+
+    args = parser.parse_args(argv)
+    logger.debug(args)
+
+    df = pd.read_csv(args.input)
+
+    names = {col: getattr(args, col) for col in columns}
+    for name in names.values():
+        if not column_exists(df, name):
+            logger.error("Column: `%s` not found in the input file", name)
+            return -1
+
+    try:
+        result = lookup(df, names, args)
+    except TableUnavailableError as exc:
+        logger.error("%s", exc)
+        return -1
+
+    logger.info("Saving output to file: `%s`", args.output)
+    result.columns = fixup_columns(result.columns.tolist())
+    result.to_csv(args.output, index=False)
+
+    return 0

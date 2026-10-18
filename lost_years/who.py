@@ -8,7 +8,6 @@ question it cannot answer, so an explicit ``age`` mapping raises instead of
 being quietly ignored; use :func:`lost_years.lost_years_hld` for that.
 """
 
-import argparse
 import logging
 import sys
 from typing import Any
@@ -16,8 +15,8 @@ from typing import Any
 import pandas as pd
 import pyarrow.parquet as pq
 
-from .datasets import TableUnavailableError, resolve
-from .utils import closest, column_exists, fixup_columns
+from .datasets import resolve
+from .utils import closest, run_lookup_cli
 
 # Setup logger
 logger = logging.getLogger(__name__)
@@ -166,63 +165,14 @@ def main(argv: list[str] = sys.argv[1:]) -> int:
         0 on success, -1 when a required column is missing or no WHO table has
         been installed.
     """
-    title = "Appends WHO life expectancy at birth by country, sex and year"
-    parser = argparse.ArgumentParser(description=title)
-    parser.add_argument("input", default=None, help="Input file")
-    parser.add_argument(
-        "-c",
-        "--country",
-        default="country",
-        help="Columns name of country in the input file(default=`country`)",
+    return run_lookup_cli(
+        argv,
+        title="Appends WHO life expectancy at birth by country, sex and year",
+        columns=("country", "sex", "year"),
+        lookup=lambda df, cols, _: lost_years_who(df, cols=cols),
+        output_default="lost-years-output.csv",
+        output_help="Output file with Lost Years data column(s)",
     )
-    parser.add_argument(
-        "-s",
-        "--sex",
-        default="sex",
-        help="Columns name of sex in the input file(default=`sex`)",
-    )
-    parser.add_argument(
-        "-y",
-        "--year",
-        default="year",
-        help="Columns name of year in the input file(default=`year`)",
-    )
-    parser.add_argument(
-        "-o",
-        "--output",
-        default="lost-years-output.csv",
-        help="Output file with Lost Years data column(s)",
-    )
-
-    args = parser.parse_args(argv)
-
-    logger.debug(args)
-
-    df = pd.read_csv(args.input)
-
-    for col_arg in (args.country, args.sex, args.year):
-        if not column_exists(df, col_arg):
-            logger.error("Column: `%s` not found in the input file", col_arg)
-            return -1
-
-    try:
-        rdf = lost_years_who(
-            df,
-            cols={
-                "country": args.country,
-                "sex": args.sex,
-                "year": args.year,
-            },
-        )
-    except TableUnavailableError as exc:
-        logger.error("%s", exc)
-        return -1
-
-    logger.info("Saving output to file: `%s`", args.output)
-    rdf.columns = fixup_columns(rdf.columns)  # type: ignore[arg-type]
-    rdf.to_csv(args.output, index=False)
-
-    return 0
 
 
 if __name__ == "__main__":
