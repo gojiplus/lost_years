@@ -17,8 +17,8 @@ from typing import Any
 import pandas as pd
 import pyarrow.parquet as pq
 
-from .datasets import TableUnavailableError, resolve
-from .utils import column_exists, fixup_columns
+from .datasets import resolve
+from .utils import run_lookup_cli
 
 # Setup logger
 logger = logging.getLogger(__name__)
@@ -438,43 +438,7 @@ class LostYearsHLDData:
 lost_years_hld = LostYearsHLDData.lost_years_hld
 
 
-def main(argv: list[str] = sys.argv[1:]) -> int:
-    """Run the ``lost_years_hld`` command line interface.
-
-    Args:
-        argv: Command line arguments, defaulting to the process arguments.
-
-    Returns:
-        0 on success, -1 when a required column is missing or no HLD table has
-        been installed.
-    """
-    title = "Appends Lost Years data from HLD (Human Life-Table Database)"
-    parser = argparse.ArgumentParser(description=title)
-    parser.add_argument("input", default=None, help="Input file")
-    parser.add_argument(
-        "-c",
-        "--country",
-        default="country",
-        help="Column name of country in the input file (default=`country`)",
-    )
-    parser.add_argument(
-        "-a",
-        "--age",
-        default="age",
-        help="Column name of age in the input file (default=`age`)",
-    )
-    parser.add_argument(
-        "-s",
-        "--sex",
-        default="sex",
-        help="Column name of sex in the input file (default=`sex`)",
-    )
-    parser.add_argument(
-        "-y",
-        "--year",
-        default="year",
-        help="Column name of year in the input file (default=`year`)",
-    )
+def _add_hld_options(parser: argparse.ArgumentParser) -> None:
     parser.add_argument(
         "--subpopulations",
         action="store_true",
@@ -491,50 +455,35 @@ def main(argv: list[str] = sys.argv[1:]) -> int:
         default=None,
         help="Accept a life table whose period misses the year by this much",
     )
-    parser.add_argument(
-        "-o",
-        "--output",
-        default="lost-years-hld-output.csv",
-        help="Output file with Lost Years HLD data",
-    )
 
-    args = parser.parse_args(argv)
-    logger.debug(args)
 
-    df = pd.read_csv(args.input)
+def main(argv: list[str] = sys.argv[1:]) -> int:
+    """Run the ``lost_years_hld`` command line interface.
 
-    # Validate columns
-    for col_arg in (args.country, args.age, args.sex, args.year):
-        if not column_exists(df, col_arg):
-            logger.error("Column: `%s` not found in the input file", col_arg)
-            return -1
+    Args:
+        argv: Command line arguments, defaulting to the process arguments.
 
-    # Apply HLD lookup
-    try:
-        result_df = lost_years_hld(
+    Returns:
+        0 on success, -1 when a required column is missing or no HLD table has
+        been installed.
+    """
+    return run_lookup_cli(
+        argv,
+        title="Appends Lost Years data from HLD (Human Life-Table Database)",
+        columns=("country", "age", "sex", "year"),
+        lookup=lambda df, cols, args: lost_years_hld(
             df,
-            cols={
-                "country": args.country,
-                "age": args.age,
-                "sex": args.sex,
-                "year": args.year,
-            },
+            cols=cols,
             subpopulations=args.subpopulations,
             max_ex_discrepancy=(
                 None if args.no_quarantine else DEFAULT_MAX_EX_DISCREPANCY
             ),
             year_tolerance=args.year_tolerance,
-        )
-    except TableUnavailableError as exc:
-        logger.error("%s", exc)
-        return -1
-
-    # Save output
-    logger.info("Saving output to file: `%s`", args.output)
-    result_df.columns = fixup_columns(result_df.columns.tolist())
-    result_df.to_csv(args.output, index=False)
-
-    return 0
+        ),
+        output_default="lost-years-hld-output.csv",
+        output_help="Output file with Lost Years HLD data",
+        add_options=_add_hld_options,
+    )
 
 
 if __name__ == "__main__":

@@ -1,6 +1,5 @@
 """SSA (US Social Security Administration) period life tables for lost_years."""
 
-import argparse
 import logging
 import sys
 
@@ -8,7 +7,7 @@ import pandas as pd
 import pyarrow.parquet as pq
 
 from .datasets import resolve
-from .utils import closest, column_exists, fixup_columns
+from .utils import closest, run_lookup_cli
 
 # Setup logger
 logger = logging.getLogger(__name__)
@@ -178,59 +177,14 @@ def main(argv: list[str] = sys.argv[1:]) -> int:
     Returns:
         0 on success, -1 when a required column is missing.
     """
-    title = "Appends Lost Years data column(s) by age, sex and year"
-    parser = argparse.ArgumentParser(description=title)
-    parser.add_argument("input", default=None, help="Input file")
-    parser.add_argument(
-        "-a",
-        "--age",
-        default="age",
-        help="Columns name of age in the input file(default=`age`)",
+    return run_lookup_cli(
+        argv,
+        title="Appends Lost Years data column(s) by age, sex and year",
+        columns=("age", "sex", "year"),
+        lookup=lambda df, cols, _: lost_years_ssa(df, cols=cols),
+        output_default="lost-years-output.csv",
+        output_help="Output file with Lost Years data column(s)",
     )
-    parser.add_argument(
-        "-s",
-        "--sex",
-        default="sex",
-        help="Columns name of sex in the input file(default=`sex`)",
-    )
-    parser.add_argument(
-        "-y",
-        "--year",
-        default="year",
-        help="Columns name of year in the input file(default=`year`)",
-    )
-    parser.add_argument(
-        "-o",
-        "--output",
-        default="lost-years-output.csv",
-        help="Output file with Lost Years data column(s)",
-    )
-
-    args = parser.parse_args(argv)
-
-    logger.debug(args)
-
-    df = pd.read_csv(args.input)
-
-    if not column_exists(df, args.age):
-        logger.error("Column: `%s` not found in the input file", args.age)
-        return -1
-
-    if not column_exists(df, args.sex):
-        logger.error("Column: `%s` not found in the input file", args.sex)
-        return -1
-
-    if not column_exists(df, args.year):
-        logger.error("Column: `%s` not found in the input file", args.year)
-        return -1
-
-    rdf = lost_years_ssa(df, cols={"age": args.age, "sex": args.sex, "year": args.year})
-
-    logger.info("Saving output to file: `%s`", args.output)
-    rdf.columns = fixup_columns(rdf.columns)  # type: ignore[arg-type]
-    rdf.to_csv(args.output, index=False)
-
-    return 0
 
 
 if __name__ == "__main__":
