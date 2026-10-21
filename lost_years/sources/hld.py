@@ -316,7 +316,7 @@ class HLD(Source):
             The most recent release date as ``YYYY-MM-DD``.
 
         Raises:
-            ValidationError: When the page carries no recognisable date.
+            ValidationError: When the page carries no recognizable date.
         """
         page = self.get_text(WHATS_NEW_URL)
         dates = [

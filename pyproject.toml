@@ -1,5 +1,5 @@
 [build-system]
-requires = ["uv_build>=0.12.5,<0.13"]
+requires = ["uv_build>=0.12.5,<0.14"]
 build-backend = "uv_build"
 
 [project]
@@ -183,6 +183,9 @@ reportDuplicateImport = true
 DEP002 = ["lxml"]
 
 [tool.codespell]
+builtin = "clear,rare,en-GB_to_en-US"
+# Preserve the serialized match status.
+ignore-regex = '''unrecognised sex'''
 # THA is Thailand's ISO-3166 code; it appears throughout the README's worked
 # examples, where codespell reads it as a typo for "than"/"that"/"the".
 ignore-words-list = "tha"

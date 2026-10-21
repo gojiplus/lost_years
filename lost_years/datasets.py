@@ -167,7 +167,7 @@ def build_manifest(
             lines were dropped.
 
     Returns:
-        The manifest, ready to serialise.
+        The manifest, ready to serialize.
     """
     metadata = pq.read_metadata(table)
     return {
